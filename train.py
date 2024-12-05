@@ -42,7 +42,10 @@ def train_model(
         save_checkpoint: bool = True
 ):
     # Create Dataset
-    dataset = FingerDataset(dir_img, img_size=img_size)
+    transform = transforms.Compose([
+        transforms.RandomCrop((112, 112))
+    ])
+    dataset = FingerDataset(dir_img, img_size=img_size, transform=transform)
 
     # Split into train / validation set and create dataloader
     if args.num_val > 0:
@@ -58,10 +61,6 @@ def train_model(
         train_loader = DataLoader(train_set, shuffle=True, batch_size=batch_size)
         val_loader = None
         test_set = FingerDataset(dir_test, img_size=args.size, augmentations=False)
-
-    transform = transforms.Compose([
-        transforms.RandomCrop((112, 112))
-    ])
 
     logging.info(f'''Starting training:
             Epochs:          {epochs}
