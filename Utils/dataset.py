@@ -26,13 +26,15 @@ class FingerDataset(Dataset):
         for img_path, label in tqdm(zip(self.img_list, self.label_list), total=len(self.label_list), desc=f'preprocess', leave=False):
             img = Image.open(img_path).convert('L')
             patches = preprocess.patching(img, self.img_size)
-            for patch in patches:
-                self.images.append(patch)
-                self.labels.append(label)
-                if augmentations:
+            if augmentations:
+                for patch in patches:
+                    self.images.append(patch)
+                    self.labels.append(label)
                     patch_aug, label_aug = preprocess.augmentation(patch, label)
                     self.images.extend(patch_aug)
                     self.labels.extend(label_aug)
+            else:
+                self.images.append(patches[0])
             img.close()
         logging.info(f'Finished creating dataset with {len(self.images)} images')
 
