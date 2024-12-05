@@ -81,7 +81,7 @@ def train_model(
         criterion = nn.BCEWithLogitsLoss()
     else:
         criterion = nn.CrossEntropyLoss()
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=200000, gamma=0.8)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20000, gamma=0.8)
 
     # Begin training
     global_step = 0
@@ -126,7 +126,8 @@ def train_model(
                 current_lr = optimizer.param_groups[0]['lr']
                 pbar.update(images.shape[0])
                 epoch_loss += loss.item()
-                pbar.set_postfix(**{'loss': loss.item(), 'learning rate': current_lr, 'train accuracy': train_acc})
+                pbar.set_postfix(**{'loss': loss.item(), 'learning rate': current_lr, 'train accuracy': train_acc,
+                                    'total step': global_step})
 
                 # Evaluation round during epoch
                 if num_val > 0 and (total >= division_step or total == n_train):
@@ -137,13 +138,6 @@ def train_model(
                     avg_acc.append(acc)
 
                     print('\nValidation accuracy: {}'.format(acc))
-        # if num_val == 0:
-        #     acc = predict(model=model, device=device, test_set=test_set)
-        #     if len(avg_acc) == 5:
-        #         avg_acc.pop(0)
-        #     avg_acc.append(acc)
-        #     if args.scheduler:
-        #         scheduler.step(sum(avg_acc) / len(avg_acc))
 
         logging.info(f'Epoch:{epoch} | Average acc:{sum(avg_acc) / len(avg_acc)} | Validation acc:{acc} | Train acc:{train_acc}')
 
