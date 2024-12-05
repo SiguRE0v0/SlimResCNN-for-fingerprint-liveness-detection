@@ -1,0 +1,1 @@
+from .SlimResCNN import SlimResCNN
