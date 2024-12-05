@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader, random_split
 from torch import nn
 from torch import optim
 import torch.nn.functional as F
+from torchvision import transforms
 from tqdm import tqdm
 import os
 from Model import SlimResCNN
@@ -13,8 +14,8 @@ from Utils.evaluate import validation
 
 def get_args():
     parser = argparse.ArgumentParser(description='Training model')
-    parser.add_argument('--epochs', '-e', metavar='E', type=int, default=200, help='Number of epochs')
-    parser.add_argument('--batch-size', '-b', dest='batch_size', metavar='B', type=int, default=16, help='Batch size')
+    parser.add_argument('--epochs', '-e', metavar='E', type=int, default=100, help='Number of epochs')
+    parser.add_argument('--batch-size', '-b', dest='batch_size', metavar='B', type=int, default=32, help='Batch size')
     parser.add_argument('--learning-rate', '-l', metavar='LR', type=float, default=1e-2, help='Learning rate', dest='lr')
     parser.add_argument('--validation', '-v', dest='val', type=float, default=0.1, help='Percent of the data that is used as validation (0-100)')
     parser.add_argument('--size', '-s', type=int, default=160, help='Size of the images after preprocess', dest='size')
@@ -58,6 +59,10 @@ def train_model(
         val_loader = None
         test_set = FingerDataset(dir_test, img_size=args.size, augmentations=False)
 
+    transform = transforms.Compose([
+        transforms.RandomCrop((112, 112))
+    ])
+
     logging.info(f'''Starting training:
             Epochs:          {epochs}
             Batch size:      {batch_size}
@@ -66,7 +71,7 @@ def train_model(
             Validation size: {n_val}
             Checkpoints:     {save_checkpoint}
             Device:          {device.type}
-            Images size:     {img_size}
+            Patch size:      {img_size}
             Output classes:  {classes}
         ''')
 
@@ -131,8 +136,6 @@ def train_model(
                     if len(avg_acc) == 5:
                         avg_acc.pop(0)
                     avg_acc.append(acc)
-                    if args.scheduler:
-                        scheduler.step(acc)
 
                     print('\nValidation accuracy: {}'.format(acc))
         # if num_val == 0:

@@ -8,12 +8,13 @@ from Utils import preprocess, traversal
 
 
 class FingerDataset(Dataset):
-    def __init__(self, img_dir, img_size=160, augmentations=True):
+    def __init__(self, img_dir, img_size=160, augmentations=True, transform=None):
         self.img_dir = img_dir
         self.img_size = img_size
         self.img_list = []
         self.label_list = []
         self.augmentations = augmentations
+        self.transform = transform
 
         logging.info('Creating data list')
         self.img_list, self.label_list = traversal.file_traversal(img_dir)
@@ -41,8 +42,9 @@ class FingerDataset(Dataset):
     def __getitem__(self, idx):
         image = self.images[idx]
         label = self.labels[idx]
-
         image = torch.from_numpy(image.copy()).unsqueeze(0)
+        if self.transform is not None:
+            image = self.transform(image)
         return image.float().contiguous(), label
 
 

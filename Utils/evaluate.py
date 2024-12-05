@@ -24,6 +24,7 @@ def validation(model, val_loader, device, classes):
                     out = F.sigmoid(logits)
                     pred = out > 0.5
                     correct += (pred == labels).sum().item()
+                pbar.update(images.shape[0])
 
     model.train()
     accuracy = correct / total
