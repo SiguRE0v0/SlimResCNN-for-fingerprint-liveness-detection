@@ -35,6 +35,7 @@ class FingerDataset(Dataset):
                     self.labels.extend(label_aug)
             else:
                 self.images.append(patches[0])
+                self.labels.append(label)
             img.close()
         logging.info(f'Finished creating dataset with {len(self.images)} images')
 

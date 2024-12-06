@@ -37,7 +37,7 @@ def predict(
             images, labels = batch
             images = images.to(device=device, dtype=torch.float32)
             labels = labels.to(device=device, dtype=torch.long)
-
+            total += labels.size(0)
             with torch.no_grad():
                 logits = model(images)
                 if classes != 1:

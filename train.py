@@ -11,15 +11,16 @@ import os
 from Model import SlimResCNN
 from Utils.dataset import FingerDataset
 from Utils.evaluate import validation
+from predict import predict
 
 def get_args():
     parser = argparse.ArgumentParser(description='Training model')
-    parser.add_argument('--epochs', '-e', metavar='E', type=int, default=100, help='Number of epochs')
-    parser.add_argument('--batch-size', '-b', dest='batch_size', metavar='B', type=int, default=32, help='Batch size')
+    parser.add_argument('--epochs', '-e', metavar='E', type=int, default=25, help='Number of epochs')
+    parser.add_argument('--batch-size', '-b', dest='batch_size', metavar='B', type=int, default=64, help='Batch size')
     parser.add_argument('--learning-rate', '-l', metavar='LR', type=float, default=1e-2, help='Learning rate', dest='lr')
     parser.add_argument('--validation', '-v', dest='val', type=float, default=0.1, help='Percent of the data that is used as validation (0-100)')
     parser.add_argument('--size', '-s', type=int, default=160, help='Size of the images after preprocess', dest='size')
-    parser.add_argument('--numval', '-n', type=int, default=1, help="The number of validation round in each epoch", dest='num_val')
+    parser.add_argument('--numval', '-n', type=int, default=0, help="The number of validation round in each epoch", dest='num_val')
     parser.add_argument('--load', '-m', type=str, default=False, help='Load .pth model')
     parser.add_argument('--classes', '-c', type=int, default=1, help='The number of classes of labels', dest='classes')
     return parser.parse_args()
@@ -138,7 +139,11 @@ def train_model(
                     avg_acc.append(acc)
 
                     print('\nValidation accuracy: {}'.format(acc))
-
+        if num_val == 0:
+            acc = predict(model=model, device=device, test_set=test_set, classes=classes)
+            if len(avg_acc) == 5:
+                avg_acc.pop(0)
+            avg_acc.append(acc)
         logging.info(f'Epoch:{epoch} | Average acc:{sum(avg_acc) / len(avg_acc)} | Validation acc:{acc} | Train acc:{train_acc}')
 
         # Epoch finished, save model

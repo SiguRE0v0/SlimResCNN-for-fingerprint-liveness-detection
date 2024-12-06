@@ -63,6 +63,8 @@ def patching(img, img_size):
     patch4 = get_patch(img, cx+50, cy+50, img_size)
     patches = [patch0, patch1, patch2, patch3, patch4]
     patches = [patch for patch in patches if (np.sum(patch > 0) / patch.shape[0]**2) >= 0.6]
+    if len(patches) == 0:
+        patches.append(patch0)
     # for patch in patches:
     #     if (np.sum(patch > 0) / patch.shape[0]**2) < 0.6:
     #         patches.remove(patch.all())
