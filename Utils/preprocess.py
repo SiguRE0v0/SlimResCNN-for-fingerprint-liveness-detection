@@ -46,8 +46,11 @@ def get_patch(image, cx, cy, width=128):
         padding_left = (width - patch.shape[1]) // 2
         padding_right = width - patch.shape[1] - padding_left
         patch = np.pad(patch, ((0, 0), (padding_left, padding_right)), "constant", constant_values=0)
+    patch_min = np.min(patch)
+    patch_max = np.max(patch)
+    patch_norm = (patch - patch_min) / (patch_max - patch_min)
 
-    return patch
+    return patch_norm
 
 
 def patching(img, img_size):
@@ -62,12 +65,9 @@ def patching(img, img_size):
     patch3 = get_patch(img, cx+50, cy-50, img_size)
     patch4 = get_patch(img, cx+50, cy+50, img_size)
     patches = [patch0, patch1, patch2, patch3, patch4]
-    patches = [patch for patch in patches if (np.sum(patch > 0) / patch.shape[0]**2) >= 0.6]
+    patches = [patch for patch in patches if (np.sum(patch > 0) / patch.shape[0]**2) >= 0.4]
     if len(patches) == 0:
         patches.append(patch0)
-    # for patch in patches:
-    #     if (np.sum(patch > 0) / patch.shape[0]**2) < 0.6:
-    #         patches.remove(patch.all())
     return patches
 
 

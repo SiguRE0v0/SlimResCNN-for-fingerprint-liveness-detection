@@ -13,11 +13,12 @@ from Utils.dataset import FingerDataset
 from Utils.evaluate import validation
 from predict import predict
 
+
 def get_args():
     parser = argparse.ArgumentParser(description='Training model')
     parser.add_argument('--epochs', '-e', metavar='E', type=int, default=25, help='Number of epochs')
     parser.add_argument('--batch-size', '-b', dest='batch_size', metavar='B', type=int, default=64, help='Batch size')
-    parser.add_argument('--learning-rate', '-l', metavar='LR', type=float, default=1e-2, help='Learning rate', dest='lr')
+    parser.add_argument('--learning-rate', '-l', metavar='LR', type=float, default=8e-3, help='Learning rate', dest='lr')
     parser.add_argument('--validation', '-v', dest='val', type=float, default=0.1, help='Percent of the data that is used as validation (0-100)')
     parser.add_argument('--size', '-s', type=int, default=160, help='Size of the images after preprocess', dest='size')
     parser.add_argument('--numval', '-n', type=int, default=0, help="The number of validation round in each epoch", dest='num_val')
@@ -61,7 +62,7 @@ def train_model(
         train_set = dataset
         train_loader = DataLoader(train_set, shuffle=True, batch_size=batch_size)
         val_loader = None
-        test_set = FingerDataset(dir_test, img_size=args.size, augmentations=False)
+        test_set = FingerDataset(dir_test, img_size=args.size, augmentations=False, transform=transform)
 
     logging.info(f'''Starting training:
             Epochs:          {epochs}
@@ -76,13 +77,12 @@ def train_model(
         ''')
 
     # Set up the optimizer and the loss
-    # optimizer = optim.AdamW(model.parameters(), learning_rate)
     optimizer = optim.SGD(model.parameters(), learning_rate, momentum=0.9)
     if classes == 1:
         criterion = nn.BCEWithLogitsLoss()
     else:
         criterion = nn.CrossEntropyLoss()
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20000, gamma=0.8)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=30000, gamma=0.8)
 
     # Begin training
     global_step = 0
